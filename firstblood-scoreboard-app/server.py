@@ -1,4 +1,3 @@
-# server.py (fixed TypeError with safe int conversion)
 from flask import Flask, render_template, request
 from flask_socketio import SocketIO
 import threading
@@ -6,11 +5,10 @@ import threading
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Global state
 current_fb_data = None
 showing_first_blood = False
-latest_scoreboard = []  # Raw scoreboard from plugin
-team_first_bloods = {}  # team_name -> count of first bloods
+latest_scoreboard = []  
+team_first_bloods = {} 
 
 @app.route('/', methods=["GET"])
 def home():
@@ -59,7 +57,7 @@ def solve():
 def scoreboard():
     global latest_scoreboard
     data = request.get_json()
-    # Safely fix scores and add bloods for live updates
+
     for entry in data:
         score_val = entry.get("score")
         if score_val is None or score_val == "null" or score_val == "":
