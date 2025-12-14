@@ -1,0 +1,330 @@
+<!-- templates/firstblood.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>First Blood!</title>
+<style>
+@font-face {
+    font-family: 'Diediedie';
+    src: url('/static/fonts/diediedie.ttf') format('truetype');
+}
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: black;
+    overflow: hidden;
+    font-family: 'Diediedie', monospace;
+    position: relative;
+}
+body::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    background-size: 100% 3px, 3px 100%;
+    z-index: 20;
+    pointer-events: none;
+    opacity: 0.8;
+}
+body::after {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.4) 100%);
+    z-index: 21;
+    pointer-events: none;
+}
+#flash {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: white;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 30;
+}
+#first-blood-title {
+    font-size: 8em;
+    color: red;
+    opacity: 0;
+    white-space: nowrap;
+    margin-bottom: 2vh;
+    animation: pulse 1.5s infinite alternate;
+    text-shadow: 0 0 20px red, 0 0 40px darkred;
+}
+@keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+}
+#message {
+    font-size: 5em;
+    text-align: center;
+    opacity: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
+    white-space: nowrap;
+    margin-bottom: 4vh;
+}
+.word {
+    display: inline-flex;
+    margin: 0 1.5rem;
+}
+.letter {
+    display: inline-block;
+    position: relative;
+    margin: 0 0.08em;
+    animation: shakeLetter 0.15s infinite;
+    text-shadow: 0 0 10px red, 0 0 20px darkred;
+}
+@keyframes shakeLetter {
+    0% { transform: translate(0,0); }
+    25% { transform: translate(-4px,4px); }
+    50% { transform: translate(4px,-4px); }
+    75% { transform: translate(-4px,-4px); }
+    100% { transform: translate(4px,4px); }
+}
+#team {
+    font-size: 8em;
+    color: #ff0000;
+    white-space: nowrap;
+    opacity: 0;
+    text-shadow: 0 0 20px #ff0000, 0 0 40px #990000;
+}
+@keyframes teamBounce {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    40% {
+        transform: scale(1.4) rotate(10deg);
+    }
+    60% {
+        transform: scale(0.9) rotate(-8deg);
+    }
+    80% {
+        transform: scale(1.15) rotate(5deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+.confetti-piece {
+    position: absolute;
+    background: hsl(0, 100%, 45%);
+    opacity: 0;
+    pointer-events: none;
+    border-radius: 50%;
+    box-shadow: 0 0 10px red;
+    filter: blur(1px);
+}
+.bg-particle {
+    position: absolute;
+    background: hsl(0, 100%, 40%);
+    opacity: 0.4;
+    pointer-events: none;
+    border-radius: 50%;
+    box-shadow: 0 0 8px red;
+    filter: blur(1px);
+    animation: float 12s infinite linear;
+}
+@keyframes float {
+    0% { transform: translateY(0) translateX(0) rotate(0deg); }
+    100% { transform: translateY(-100vh) translateX(100px) rotate(360deg); }
+}
+.glitch-shake {
+    animation: shake 0.1s infinite;
+}
+@keyframes shake {
+    0% { transform: translate(0,0); }
+    25% { transform: translate(-10px,10px); }
+    50% { transform: translate(10px,-10px); }
+    75% { transform: translate(-10px,-10px); }
+    100% { transform: translate(10px,10px); }
+}
+.drip::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    width: 8px;
+    height: 30px;
+    background: red;
+    border-radius: 50%;
+    animation: dripAnim 1.5s ease-in infinite;
+    transform-origin: top;
+}
+@keyframes dripAnim {
+    0% { transform: scaleY(0); opacity: 1; }
+    80% { transform: scaleY(1.2); opacity: 1; }
+    100% { transform: scaleY(1.5); opacity: 0; bottom: -50px; }
+}
+#scanlines {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(to bottom, transparent, transparent 4px, rgba(255,255,255,0.03) 4px, rgba(255,255,255,0.03) 8px);
+    pointer-events: none;
+    opacity: 0.5;
+    animation: scanlineMove 8s linear infinite;
+    z-index: 19;
+}
+@keyframes scanlineMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 0 100%; }
+}
+</style>
+</head>
+<body>
+<div id="scanlines"></div>
+<div id="flash"></div>
+<div id="first-blood-title">First Blood!</div>
+<div id="message"></div>
+<div id="team"></div>
+
+<audio id="firstBloodSound" autoplay>
+  <source src="https://www.myinstants.com/media/sounds/first-blood.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+const teamName = "{{ team }}";
+const challengeName = "{{ challenge }}";
+
+function screenFlash(times = 40, duration = 60) {
+    const flash = document.getElementById('flash');
+    const body = document.body;
+    const scanlines = document.getElementById('scanlines');
+    scanlines.style.opacity = 1;
+    let i = 0;
+    function toggle() {
+        flash.style.opacity = flash.style.opacity == 0 ? 1 : 0;
+        body.classList.toggle('glitch-shake');
+        i++;
+        if (i < times * 2) setTimeout(toggle, duration);
+        else {
+            body.classList.remove('glitch-shake');
+            setTimeout(() => { scanlines.style.opacity = 0.5; }, 2000);
+        }
+    }
+    toggle();
+}
+
+function animateTeam(teamName) {
+    const teamDiv = document.getElementById('team');
+    teamDiv.textContent = teamName;
+    teamDiv.style.animation = 'teamBounce 1.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards';
+}
+
+function createBackgroundParticles(count = 50) {
+    for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'bg-particle';
+        const size = Math.random() * 15 + 8;
+        p.style.width = size + 'px';
+        p.style.height = size + 'px';
+        p.style.left = Math.random() * 100 + '%';
+        p.style.top = Math.random() * 100 + '%';
+        p.style.animationDelay = Math.random() * 12 + 's';
+        p.style.animationDuration = (Math.random() * 8 + 8) + 's';
+        const hue = Math.random() * 30 - 15;
+        p.style.background = `hsl(${hue}, 100%, 40%)`;
+        document.body.appendChild(p);
+    }
+}
+
+function launchConfetti(count = 200) {
+    for (let i = 0; i < count; i++) {
+        const conf = document.createElement('div');
+        conf.className = 'confetti-piece';
+        const hue = Math.random() * 30 - 15;
+        const lightness = 30 + Math.random() * 30;
+        conf.style.background = `hsl(${hue}, 100%, ${lightness}%)`;
+        conf.style.left = Math.random() * 100 + '%';
+        conf.style.top = '-50px';
+        const size = Math.random() * 20 + 10;
+        conf.style.width = size + 'px';
+        conf.style.height = size * (0.5 + Math.random()) + 'px';
+        conf.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+        document.body.appendChild(conf);
+        conf.style.opacity = 0;
+        let speed = Math.random() * 5 + 3;
+        let rotation = Math.random() * 720;
+        let sway = Math.random() * 60 - 30;
+        let delay = Math.random() * 1500;
+        setTimeout(() => {
+            conf.style.transition = 'opacity 1.5s ease';
+            conf.style.opacity = 0.9;
+            function fall(t = 0) {
+                let top = parseFloat(conf.style.top);
+                if (top < window.innerHeight + 200) {
+                    conf.style.top = (top + speed) + 'px';
+                    conf.style.left = (parseFloat(conf.style.left) + Math.sin(t / 100) * sway / 20) + '%';
+                    conf.style.transform = `rotate(${rotation += 10}deg)`;
+                    requestAnimationFrame(() => fall(t + 16));
+                } else {
+                    conf.style.transition = 'opacity 15s ease-out';
+                    conf.style.opacity = 0.3;
+                }
+            }
+            fall();
+        }, delay);
+    }
+}
+
+function showMessage(challenge, team) {
+    const title = document.getElementById('first-blood-title');
+    const message = document.getElementById('message');
+    title.style.transition = 'opacity 1s ease';
+    title.style.opacity = 1;
+    message.innerHTML = '';
+    const fullText = `on ${challenge} by`;
+    const words = fullText.split(' ');
+    words.forEach((word, wordIdx) => {
+        const wordSpan = document.createElement('span');
+        wordSpan.className = 'word';
+        word.split('').forEach((char, index) => {
+            const span = document.createElement('span');
+            span.classList.add('letter');
+            if (Math.random() < 0.4) span.classList.add('drip');
+            if (index === 0) span.style.color = 'red';
+            else span.style.color = 'white';
+            span.textContent = char;
+            wordSpan.appendChild(span);
+        });
+        message.appendChild(wordSpan);
+        if (wordIdx < words.length - 1) {
+            message.appendChild(document.createTextNode(' '));
+        }
+    });
+    message.style.transition = 'opacity 1.5s ease';
+    message.style.opacity = 1;
+    animateTeam(team);
+    document.getElementById('firstBloodSound').play();
+    launchConfetti(200);
+    createBackgroundParticles(50);
+}
+
+// Start animation immediately
+screenFlash(40, 60);
+setTimeout(() => {
+    showMessage(challengeName, teamName);
+}, 800);
+
+// After 15 seconds, go back to scoreboard
+setTimeout(() => {
+    window.location.href = "/";
+}, 15000);
+</script>
+</body>
+</html>

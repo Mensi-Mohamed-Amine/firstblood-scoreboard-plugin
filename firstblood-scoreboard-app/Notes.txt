@@ -1,15 +1,8 @@
-# firstblood-scoreboard-plugin
-
-firstblood-scoreboard-plugin
-
 # Build the image
-
 docker build -t firstblood-scoreboard .
 
 # Run the container
-
 docker run -d -p 5000:5000 --name firstblood --restart unless-stopped firstblood-scoreboard
 
-# docker compse
 
 docker compose up -d --build

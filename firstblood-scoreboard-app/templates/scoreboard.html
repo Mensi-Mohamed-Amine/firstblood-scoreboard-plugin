@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scoreboard</title>
+    <style>
+        @font-face {
+            font-family: 'Diediedie';
+            src: url('/static/fonts/diediedie.ttf') format('truetype');
+        }
+        body {
+            margin: 0;
+            height: 100vh;
+            background: black;
+            color: white;
+            font-family: 'Diediedie', monospace;
+            overflow: hidden;
+            position: relative;
+        }
+        /* Retro CRT effects - Darknets style */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background:
+                linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.25) 50%),
+                linear-gradient(90deg, rgba(255,0,0,0.08), rgba(0,255,0,0.03), rgba(0,0,255,0.08));
+            background-size: 100% 4px, 4px 100%;
+            pointer-events: none;
+            opacity: 0.9;
+            z-index: 20;
+        }
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.5) 100%);
+            pointer-events: none;
+            z-index: 21;
+        }
+
+        .container {
+            padding: 40px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: red;
+            text-align: center;
+            font-size: 4em;
+            margin: 0 0 60px 0;
+            text-shadow: 0 0 40px red;
+            letter-spacing: 8px;
+        }
+
+        table {
+            width: 85%;
+            border-collapse: collapse;
+            font-size: 2.4em;
+            background: rgba(10,10,10,0.9);
+        }
+        th {
+            background: #200000;
+            color: red;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid red;
+            letter-spacing: 3px;
+        }
+        td {
+            padding: 18px;
+            text-align: center;
+            border-bottom: 1px solid #444;
+        }
+        tr:hover {
+            background: rgba(100,0,0,0.3);
+        }
+        .rank { color: #ffcc00; font-weight: bold; }
+        .team { text-align: left; color: white; }
+        .score { color: #00ffcc; }
+        .solves { color: #ccc; }
+        .bloods { color: red; font-weight: bold; }
+
+        /* First letter red, rest white for titles */
+        .red-first::first-letter {
+            color: red;
+            font-size: 1.3em;
+        }
+        th span.red-first {
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="red-first">S<span style="color:white">coreboard</span></h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <th><span class="red-first">R</span>ank</th>
+                    <th><span class="red-first">T</span>eam</th>
+                    <th><span class="red-first">S</span>core</th>
+                    <th><span class="red-first">S</span>olves</th>
+                    <th><span class="red-first">F</span>irst <span class="red-first">B</span>loods</th>
+                </tr>
+            </thead>
+            <tbody id="teams">
+                {% if scoreboard %}
+                    {% for entry in scoreboard %}
+                    <tr>
+                        <td class="rank">
+                            {% if loop.index == 1 %}🥇
+                            {% elif loop.index == 2 %}🥈
+                            {% elif loop.index == 3 %}🥉
+                            {% else %}{{ loop.index }}{% endif %}
+                        </td>
+                        <td class="team">{{ entry.team }}</td>
+                        <td class="score">{{ entry.score }}</td>
+                        <td class="solves">{{ entry.num_solves }}</td>
+                        <td class="bloods">{{ entry.num_bloods }} 🩸</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+        const teamsTbody = document.getElementById('teams');
+
+        function updateScoreboard(data) {
+            teamsTbody.innerHTML = '';
+            data.forEach((entry, index) => {
+                const rank = index + 1;
+                const rankIcon = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="rank">${rankIcon}</td>
+                    <td class="team">${escapeHtml(entry.team)}</td>
+                    <td class="score">${entry.score || 0}</td>
+                    <td class="solves">${entry.num_solves || 0}</td>
+                    <td class="bloods">${entry.num_bloods || 0} 🩸</td>
+                `;
+                teamsTbody.appendChild(tr);
+            });
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        socket.on('scoreboard_update', updateScoreboard);
+
+        socket.on('new_first_blood', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+</html>
